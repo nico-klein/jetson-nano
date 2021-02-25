@@ -23,28 +23,15 @@ class Camera():
         self.capture_device, self.capture_fps, self.flip_mode = capture_device, capture_fps, flip_mode
         self.debug=debug
 
-        try:
+        if not self._init_cap():
+            print('try to kill old camera processes. maybe enter password')
+            password = getpass.getpass()
+            # can be any command but don't forget -S as it enables input from stdin
+            command = "sudo -S systemctl restart nvargus-daemon"
+            os.system('echo %s | %s' % (password, command))
+            time.sleep(2)
             if not self._init_cap():
-                raise RuntimeError('try 1 image failed')
-        except:
-            try:
-                print('try to release old cap...')
-                self.cap.release()
-                if not self._init_cap():
-                    raise RuntimeError('try 2 failed')
-            except:
-                try:
-                    print('try to kill old camera processes. maybe enter password')
-                    password = getpass.getpass()
-                    # can be any command but don't forget -S as it enables input from stdin
-                    command = "sudo -S systemctl restart nvargus-daemon"
-                    os.system('echo %s | %s' % (password, command))
-                    time.sleep(2)
-                    if not self._init_cap():
-                        raise RuntimeError('try 3 failed')
-                except:
-                    raise RuntimeError(
-                        'failed - nothing did worked. restart kernel after exceute "sudo systemctl restart nvargus-daemon"')
+                raise RuntimeError('init stream failed. try restart kernel after exceute "sudo systemctl restart nvargus-daemon"')
 
         atexit.register(self.cap.release)
 
