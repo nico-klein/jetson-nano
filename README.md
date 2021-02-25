@@ -13,3 +13,4 @@ I'm in an early phase. not to much here.
 
 ## folder utils
 * libs to use the hardware of the jetson nano like camera (later gamepad etc)
+I write my owe because the already existing did not implement everything I need 
