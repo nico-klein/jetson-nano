@@ -6,7 +6,7 @@ I'm in an early phase. not to much here.
 * test 2 connected cameras on the jetson (USB camera support will be added later)
 
 ## predict_with_vgg16.ipynb
-* redict image from internet, from file and live from camera with imagenet vgg16
+* predict image from internet, from file and live from camera with imagenet vgg16
 
 ## folder images
 * sample images for image recognition
