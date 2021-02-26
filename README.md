@@ -20,8 +20,8 @@ I'm in an early phase. not to much here.
 * sample images for image recognition
 
 ## folder utils
-libs to use the hardware of the jetson nano 
+libs to use the hardware of the jetson nano. I write my own because the already existing classes did not implement everything I need 
 *  camera (up to 2 internal cameras. USB cam will be added later)  
 *  PS5 gamepad
 *  motors
-I write my own because the already existing did not implement everything I need 
+
