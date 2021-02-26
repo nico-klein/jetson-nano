@@ -3,14 +3,14 @@ Here are my my samples and tests with the jetson nano.
 I'm in an early phase. not to much here.
 
 ## tests
-###camera-test.ipynb
+###c amera-test.ipynb
 * test 2 connected cameras on the jetson (USB camera support will be added later)
-###motor-test.ipynb
+###m otor-test.ipynb
 * drive forward, beackward
-###gamepad-test.ipynb
+### gamepad-test.ipynb
 * test all buttons and analog sticks (the 4 buttons on the left dont't work...)
 
-##remote_controlled_car
+## remote_controlled_car
 * drive the robot with a PS5 gamepad
 
 ## predict_with_vgg16.ipynb
