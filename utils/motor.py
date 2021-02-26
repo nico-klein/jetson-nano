@@ -4,10 +4,13 @@ from Adafruit_MotorHAT import Adafruit_MotorHAT
 
 class Motor():
         
-    def __init__(self, channel, alpha=0.5, offset=0.2, i2c_bus=1):
+    def __init__(self, channel, alpha=0.5, offset=0.2, i2c_bus=1, debug=False):
         self.i2c_bus, self.alpha, self.offset = i2c_bus, alpha, offset
         self.driver = Adafruit_MotorHAT(i2c_bus=self.i2c_bus)
         self.motor = self.driver.getMotor(channel)
+        self._debug = debug
+        self._channel = channel
+        self._old_speed = -1
         
         if(channel == 1):
             self.ina, self.inb = 1, 0 
@@ -24,6 +27,12 @@ class Motor():
         else:
              mapped_value = 0
         speed = min(max(abs(mapped_value), 0), 255)
+        
+        # debug : write changed speed
+        if self._debug and self._old_speed != speed:
+            print(f'channel {self._channel} speed:{speed}')
+            self._old_speed = speed
+            
         self.motor.setSpeed(speed)
 
         if mapped_value < 0:
