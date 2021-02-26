@@ -3,7 +3,7 @@ Here are my my samples and tests with the jetson nano.
 I'm in an early phase. not to much here.
 
 ## tests
-###c amera-test.ipynb
+### camera-test.ipynb
 * test 2 connected cameras on the jetson (USB camera support will be added later)
 ###m otor-test.ipynb
 * drive forward, beackward
