@@ -14,7 +14,9 @@ I'm in an early phase. not to much here.
 * drive the robot with a PS5 gamepad
 
 ## predict_with_vgg16.ipynb
-* predict image from internet, from file and live from camera with imagenet vgg16
+* predict images from internet, from file and live from camera 
+* pretrained nets on imagenet
+* pytorch and tensorflow
 
 ## folder images
 * sample images for image recognition
