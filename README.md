@@ -13,7 +13,7 @@ I'm in an early phase. not to much here.
 ## remote_controlled_car
 * drive the robot with a PS5 gamepad
 
-## predict_with_vgg16.ipynb
+## predict images
 * predict images from internet, from file and live from camera 
 * pretrained nets on imagenet
 * pytorch and tensorflow
