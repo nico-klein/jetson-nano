@@ -70,3 +70,8 @@ class Camera:
             return cv2.flip(image, self._flip_mode)
         else:
             raise RuntimeError('read image failed')
+
+    def close(self): 
+        self._cap.release()
+        
+            
