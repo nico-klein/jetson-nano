@@ -3,9 +3,10 @@
 [Unit]
 After=network.service
 [Service]
-ExecStart=/usr/bin/python3 /home/jetson/notebooks/jetson-nano/services/cooling_fan_service.py
-User=jetson
+ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/cooling_fan_service.py
+User=root
 WorkingDirectory=/home/jetson/notebooks/jetson-nano/services
+ExecStop=/bin/echo "100" > /sys/devices/pwm-fan/target_pwm
 
 [Install]
 WantedBy=default.target
@@ -21,21 +22,32 @@ import sys, time
 sys.path.append('../')
 from utils.cooling_fan import CoolingFan
 
+MIN_SPEED = 35
+TEMP_FAN_OFF = 35
+TEMP_FAN_MAX = 55
+    
 cooling_fan = CoolingFan()
 
-# switch fan on for 2 seconds
-cooling_fan.set_speed(255)
-time.sleep(2)
+# switch fan on for 1 second
+cooling_fan.set_speed(200)
+time.sleep(1)
 cooling_fan.set_speed(0)
-sys.stdout.write('cooling_fan service started with speed:'+ str(cooling_fan.calculate_cooling_speed())+  '\n')
-sys.stdout.write('current temperature:' + str(cooling_fan.get_temp()) + '\n')
 
 # forever loop
 while True:
-    current_speed = cooling_fan.get_speed()
-    target_speed = cooling_fan.calculate_cooling_speed()
+    # calculate target speed
+    temp = cooling_fan.get_temp()
+    if temp < TEMP_FAN_OFF:
+        target_speed = 0
+    elif temp > TEMP_FAN_MAX:
+        target_speed =  255
+    else:
+        target_speed = MIN_SPEED + int((255 - MIN_SPEED) * (temp - TEMP_FAN_OFF) / (TEMP_FAN_MAX - TEMP_FAN_OFF))
     
-    ## change if difference > 10
+    # get current speed
+    current_speed = cooling_fan.get_speed()
+    
+    # change if difference > 5
     if abs(current_speed - target_speed) > 10:
         cooling_fan.set_speed(target_speed)
         # debug only : print(target_speed)
