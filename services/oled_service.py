@@ -122,9 +122,7 @@ while True:
             else:
                 ip = ''
             draw.text((x, top + space * i), f'{interface} {ip}',  font=font, fill=255)
-        
-        #cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
-        #cpu_load = ip = exec_cmd(cmd)
+
         cmd = "free -m | awk 'NR==2{printf \"mem %.0f%%\", $3*100/$2 }'"
         mem_usage = ip = exec_cmd(cmd)
         cmd = "free -m | awk 'NR==3{printf \"swap %.0f%%\", $3*100/$2 }'"
@@ -138,11 +136,7 @@ while True:
         draw.text((x, top + space * 3),    
                   fan,  font=font,
                   fill=255)
-        #draw.text((x, top + space * 4),    
-        #          f'check {file_name}',  font=font,
-        #          fill=255)
 
-        # Display image.
         disp.image(image)
         disp.display()
-        time.sleep(5)
+        time.sleep(3)
