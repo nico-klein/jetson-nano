@@ -30,7 +30,11 @@ from PIL import Image, ImageDraw, ImageFont
 from pathlib import Path
 sys.path.append('../')
 from utils.cooling_fan import CoolingFan
+from utils.battery import Battery
 
+time.sleep(3)
+
+# get display type from args
 if len(sys.argv) > 1:
     if sys.argv[1] == 'SSD1306_128_32':
         disp = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1)
@@ -40,6 +44,14 @@ if len(sys.argv) > 1:
         disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
 else:
     disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
+        
+# check if battery and AD is connected
+is_battery = True
+battery = Battery()
+try:
+    battery.read_voltage()  
+except:
+    is_battery = False
         
 # Initialize library.
 disp.begin()
@@ -122,20 +134,25 @@ while True:
             else:
                 ip = ''
             draw.text((x, top + space * i), f'{interface} {ip}',  font=font, fill=255)
-
+        # memory and swap
         cmd = "free -m | awk 'NR==2{printf \"mem %.0f%%\", $3*100/$2 }'"
         mem_usage = ip = exec_cmd(cmd)
         cmd = "free -m | awk 'NR==3{printf \"swap %.0f%%\", $3*100/$2 }'"
         swap_usage = ip = exec_cmd(cmd)
-        fan = f'fan {100 * cooling_fan.get_speed() // 255}%  temp {cooling_fan.get_temp()}°C'
-    
         draw.text((x, top + space * 2),    
                   f'{mem_usage} % {swap_usage} %',  
                   font=font, 
                   fill=255)
+        # fan or battery and temperature
+        if is_battery:
+            fan_batt_temp = f'bat {battery.read_voltage() / 1000:0.1f}V temp {cooling_fan.get_temp()}°C'
+        else:
+            fan_batt_temp = f'fan {100 * cooling_fan.get_speed() // 255}% temp {cooling_fan.get_temp()}°C'
+        
         draw.text((x, top + space * 3),    
-                  fan,  font=font,
+                  fan_batt_temp,  font=font,
                   fill=255)
+        
 
         disp.image(image)
         disp.display()
