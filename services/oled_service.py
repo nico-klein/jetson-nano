@@ -1,4 +1,4 @@
-# adapt the path values and the user in the script !!!
+# adapt the path values and the user and the display type in the script !!!
 
 # this service prints stats
 # if after staring of this service a file $HOME/oled.txt is preset, it will print this instead od stats
@@ -10,7 +10,7 @@
 [Unit]
 After=network.service
 [Service]
-ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/oled_service.py 
+ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/oled_service.py SSD1306_128_32
 User=jetson
 WorkingDirectory=/home/jetson/jetson-nano/services/
 
@@ -47,12 +47,6 @@ disp.begin()
 file_name = str(Path.home()) + '/oled.txt'
 if os.path.isfile(file_name):
     os.remove(file_name)
-
-#file1 = open(file_name,"w")
-#file1.write("Hello \n")
-#file1.write(str(sys.argv))
-#file1.close() #to change file access modes
-    
     
 # Clear display.
 disp.clear()
