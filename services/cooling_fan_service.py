@@ -1,11 +1,13 @@
 # /etc/systemd/system/cooling_fan.service 
+# adapt the path values in the script !!!
+
 '''
 [Unit]
 After=network.service
 [Service]
 ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/cooling_fan_service.py
 User=root
-WorkingDirectory=/home/jetson/notebooks/jetson-nano/services
+WorkingDirectory=/home/jetson/jetson-nano/services
 ExecStop=/bin/echo "100" > /sys/devices/pwm-fan/target_pwm
 
 [Install]

@@ -1,3 +1,5 @@
+# adapt the path values and the user in the script !!!
+
 # this service prints stats
 # if after staring of this service a file $HOME/oled.txt is preset, it will print this instead od stats
 # during start of service an existing file $HOME/oled.txt will be deleted
@@ -8,8 +10,8 @@
 [Unit]
 After=network.service
 [Service]
-ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/oled_service.py /home/jetson/oled.txt
-User=root
+ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/oled_service.py 
+User=jetson
 WorkingDirectory=/home/jetson/jetson-nano/services/
 
 [Install]
@@ -29,8 +31,16 @@ from pathlib import Path
 sys.path.append('../')
 from utils.cooling_fan import CoolingFan
 
-disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
-
+if len(sys.argv) > 1:
+    if sys.argv[1] == 'SSD1306_128_32':
+        disp = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=1, gpio=1)
+    elif sys.argv[1] == 'SSD1306_128_64':
+        disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
+    else:
+        disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
+else:
+    disp = Adafruit_SSD1306.SSD1306_128_64(rst=None, i2c_bus=1, gpio=1)
+        
 # Initialize library.
 disp.begin()
 
@@ -38,6 +48,12 @@ file_name = str(Path.home()) + '/oled.txt'
 if os.path.isfile(file_name):
     os.remove(file_name)
 
+#file1 = open(file_name,"w")
+#file1.write("Hello \n")
+#file1.write(str(sys.argv))
+#file1.close() #to change file access modes
+    
+    
 # Clear display.
 disp.clear()
 disp.display()
@@ -68,7 +84,7 @@ font = ImageFont.load_default()
 
 cooling_fan = CoolingFan()
 
-space = 9
+space = 8
 
 file_last_modified = 0
 
