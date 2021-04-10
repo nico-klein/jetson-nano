@@ -72,6 +72,14 @@ space = 9
 
 file_last_modified = 0
 
+
+def exec_cmd(cmd):
+    try:
+        return subprocess.check_output(cmd, shell=True).decode('ascii')[:-1]
+    except:
+        return "-"
+
+
 while True:
     draw.rectangle((0,0,width,height), outline=0, fill=0)
     
@@ -96,25 +104,25 @@ while True:
     else:
         # network connection(s)
         for i, interface in enumerate(['eth0', 'wlan0']):
-            operstate = subprocess.check_output('cat /sys/class/net/%s/operstate' % interface, shell=True).decode('ascii')[:-1]
+            operstate = exec_cmd(f'cat /sys/class/net/{interface}/operstate')
             if operstate == 'up' :  
-                cmd = "ifconfig %s | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'" % interface
-                ip = subprocess.check_output(cmd, shell=True).decode('ascii')[:-1]
+                cmd = "ifconfig %s | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' \
+                | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1'" % interface
+                ip = exec_cmd(cmd)
             else:
                 ip = ''
             draw.text((x, top + space * i), f'{interface} {ip}',  font=font, fill=255)
         
-        cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
-        CPU = subprocess.check_output(cmd, shell = True )
+        #cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+        #cpu_load = ip = exec_cmd(cmd)
         cmd = "free -m | awk 'NR==2{printf \"mem %.0f%%\", $3*100/$2 }'"
-        mem_usage = subprocess.check_output(cmd, shell = True )
+        mem_usage = ip = exec_cmd(cmd)
         cmd = "free -m | awk 'NR==3{printf \"swap %.0f%%\", $3*100/$2 }'"
-        swap_usage = subprocess.check_output(cmd, shell = True )
+        swap_usage = ip = exec_cmd(cmd)
         fan = f'fan {100 * cooling_fan.get_speed() // 255}%  temp {cooling_fan.get_temp()}°C'
     
-
         draw.text((x, top + space * 2),    
-                  str(mem_usage.decode('utf-8')) + ' ' + str(swap_usage.decode('utf-8')),  
+                  f'{mem_usage} % {swap_usage} %',  
                   font=font, 
                   fill=255)
         draw.text((x, top + space * 3),    
