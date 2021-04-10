@@ -2,8 +2,6 @@
 
 # this service prints stats
 # if after staring of this service a file $HOME/oled.txt is preset, it will print this instead od stats
-# during start of service an existing file $HOME/oled.txt will be deleted
-
 # /etc/systemd/system/oled.service 
 '''
 [Unit]
@@ -53,46 +51,34 @@ try:
 except:
     is_battery = False
         
-# Initialize library.
-disp.begin()
-
+# cusom file to show         
 file_name = str(Path.home()) + '/oled.txt'
-if os.path.isfile(file_name):
-    os.remove(file_name)
-    
-# Clear display.
+file_last_modified = 0
+
+# helper function to get fan date and temperature
+cooling_fan = CoolingFan()
+
+# initialize library and clear display
+disp.begin()
 disp.clear()
 disp.display()
 
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
+# create blank image for drawing
 width = disp.width
 height = disp.height
 image = Image.new('1', (width, height))
 
-# Get drawing object to draw on image.
+# drawing object
 draw = ImageDraw.Draw(image)
 
-# Draw a black filled box to clear the image.
-draw.rectangle((0, 0, width, height), outline=0, fill=0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = -2
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = 0
-
-# Load default font.
+# load default font and bigger fonts
 font = ImageFont.load_default()
-#font = ImageFont.truetype("arial.ttf", 15)
-
-cooling_fan = CoolingFan()
-
-space = 8
-
-file_last_modified = 0
+fonts = {
+    64 :ImageFont.truetype('/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf', 64),
+    32: ImageFont.truetype('/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf', 32),
+    16: ImageFont.truetype('/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf', 16),
+    8: ImageFont.truetype('/usr/share/fonts/truetype/ubuntu/Ubuntu-M.ttf', 8)
+}
 
 
 def exec_cmd(cmd):
@@ -101,21 +87,26 @@ def exec_cmd(cmd):
     except:
         return "-"
 
-
 while True:
     draw.rectangle((0,0,width,height), outline=0, fill=0)
     
     if os.path.isfile(file_name):
         if (file_last_modified != os.path.getmtime(file_name)):
             file_last_modified = os.path.getmtime(file_name)
-        
+ 
+            # read rows from file
             f = open(file_name, "r")
-            row = 0
-            for text in f:
-                draw.text((x, top + 8 * row),text,  font=font, fill=255)
-                row += 1
+            rows = []
+            for text_row in f:
+                rows.append(text_row)
             f.close()
-            # Display image.
+            
+            # calculate best font
+            fontsize = height / max(len(rows), 1)
+            fontsize = max(fontsize, 8)
+            
+            for i, text_row in enumerate(rows):
+                draw.text((0, fontsize * i),text_row,  font=fonts[fontsize], fill=255)
             disp.image(image)
             disp.display()
             time.sleep(0.1)
@@ -133,13 +124,13 @@ while True:
                 ip = exec_cmd(cmd)
             else:
                 ip = ''
-            draw.text((x, top + space * i), f'{interface} {ip}',  font=font, fill=255)
+            draw.text((0, 8 * i), f'{interface} {ip}',  font=font, fill=255)
         # memory and swap
         cmd = "free -m | awk 'NR==2{printf \"mem %.0f%%\", $3*100/$2 }'"
         mem_usage = ip = exec_cmd(cmd)
         cmd = "free -m | awk 'NR==3{printf \"swap %.0f%%\", $3*100/$2 }'"
         swap_usage = ip = exec_cmd(cmd)
-        draw.text((x, top + space * 2),    
+        draw.text((0, 8 * 2),    
                   f'{mem_usage} % {swap_usage} %',  
                   font=font, 
                   fill=255)
@@ -149,7 +140,7 @@ while True:
         else:
             fan_batt_temp = f'fan {100 * cooling_fan.get_speed() // 255}% temp {cooling_fan.get_temp()}°C'
         
-        draw.text((x, top + space * 3),    
+        draw.text((0, 8 * 3),    
                   fan_batt_temp,  font=font,
                   fill=255)
         
