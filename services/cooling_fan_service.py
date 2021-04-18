@@ -8,7 +8,7 @@ After=network.service
 ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/cooling_fan_service.py
 User=root
 WorkingDirectory=/home/jetson/jetson-nano/services
-ExecStop=/bin/echo "100" > /sys/devices/pwm-fan/target_pwm
+ExecStop=/bin/echo "0" > /sys/devices/pwm-fan/target_pwm
 
 [Install]
 WantedBy=default.target
