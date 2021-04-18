@@ -17,7 +17,7 @@ class Camera:
         return re
 
     def __init__(self, capture_device=0, capture_fps=30, capture_width=640, capture_height=480,
-                 width=224, height=224, flip_mode=0, debug=False):
+                 width=224, height=224, flip_mode=0, debug=False, is_internal_camera=True):
         """
         init camera
         :param capture_device: 0 or 1 for internal cameras. usb cam is not implemented yet
@@ -32,27 +32,36 @@ class Camera:
         self._capture_width, self._capture_height, self._width, self._height = capture_width, capture_height, width, height
         self._capture_device, self._capture_fps, self._flip_mode = capture_device, capture_fps, flip_mode
         self._debug = debug
+        self._is_internal_camera = is_internal_camera
 
         if not self._init_cap():
-            print('try to kill old camera processes. maybe enter password')
-            password = getpass.getpass()
-            # can be any command but don't forget -S as it enables input from stdin
-            command = "sudo -S systemctl restart nvargus-daemon"
-            os.system('echo %s | %s' % (password, command))
-            time.sleep(2)
-            if not self._init_cap():
-                raise RuntimeError(
-                    'init stream failed. try restart kernel after exceute "sudo systemctl restart nvargus-daemon"')
+            #print('try to kill old camera processes. maybe enter password')
+            #password = getpass.getpass()
+            ## can be any command but don't forget -S as it enables input from stdin
+            #command = "sudo -S systemctl restart nvargus-daemon"
+            #os.system('echo %s | %s' % (password, command))
+            #time.sleep(2)
+            #if not self._init_cap():
+            #    raise RuntimeError(
+            
+            print('init stream failed. try restart kernel after exceute in case of internal camera "sudo systemctl restart nvargus-daemon"')
 
         atexit.register(self._cap.release)
 
     def _gst_str(self):
-        return 'nvarguscamerasrc sensor-id=%d ! video/x-raw(memory:NVMM), width=%d, height=%d, \
-                format=(string)NV12, framerate=(fraction)%d/1 ! nvvidconv ! video/x-raw, width=(int)%d, \
-                height=(int)%d, format=(string)BGRx ! videoconvert ! appsink drop=true sync=false' % (
-            self._capture_device, self._capture_width, self._capture_height, self._capture_fps, self._width,
-            self._height)
-
+        # direct connected csi cameras to jetson
+        if self._is_internal_camera:
+            return 'nvarguscamerasrc sensor-id=%d ! video/x-raw(memory:NVMM), width=%d, height=%d, \
+                    format=(string)NV12, framerate=(fraction)%d/1 ! nvvidconv ! video/x-raw, width=(int)%d, \
+                    height=(int)%d, format=(string)BGRx ! videoconvert ! appsink drop=true sync=false' % (
+                self._capture_device, self._capture_width, self._capture_height, self._capture_fps, self._width,
+                self._height)
+        # USB camera
+        else:
+            return 'v4l2src device=/dev/video%d ! video/x-raw, width=(int)%d, height=(int)%d, framerate=(fraction)%d/1 \
+                    ! videoconvert !  video/x-raw, format=(string)BGR ! appsink drop=true sync=false' % (self._capture_device, self._capture_width, self._capture_height, self._capture_fps)
+  
+    
     def get_image_rgb(self):
         """
         grabs, decodes and returns the current video frame
@@ -67,6 +76,9 @@ class Camera:
         """
         re, image = self._cap.read()
         if re:
+            # resizeing in usb camare didt'n't work
+            if not self._is_internal_camera:
+                image = cv2.resize(image, (self._width, self._height), interpolation = cv2.INTER_AREA)
             return cv2.flip(image, self._flip_mode)
         else:
             raise RuntimeError('read image failed')
