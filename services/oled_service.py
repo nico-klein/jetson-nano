@@ -8,9 +8,9 @@
 [Unit]
 After=network.service
 [Service]
-ExecStart=/usr/bin/python3 /home/jetson/jetson-nano/services/oled_service.py SSD1306_128_32
+ExecStart=/usr/bin/python3 /home/jetson/github/jetson-nano/services/oled_service.py SSD1306_128_32
 User=jetson
-WorkingDirectory=/home/jetson/jetson-nano/services/
+WorkingDirectory=/home/jetson/github/jetson-nano/services/
 
 [Install]
 WantedBy=default.target
@@ -19,7 +19,7 @@ WantedBy=default.target
 
 # sudo systemctl enable oled.service  -> activate initial
 # sudo systemctl daemon-reload        -> only needed after changes 
-# sudo systemctl start oled.service   -> only needed after daemon-reload
+    # sudo systemctl start oled.service   -> only needed after daemon-reload
 # systemctl status oled.service      -> show log
 
 import sys, time, os, subprocess
